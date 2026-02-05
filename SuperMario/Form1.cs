@@ -31,7 +31,7 @@ namespace SuperMario
 
         #region SPUNTI
         //Per tutto il movimento orizzontale (compresi scatto ecc. il lavoro svolto fino all'ultima commit (26/01) sembra essere relativamente buono e non necessita di modifiche sostanziali
-        //In futuro verrà deciso se implementare il salto graduale che a parer mio non sembra complicato da implementare
+        //In futuro verrÃ  deciso se implementare il salto graduale che a parer mio non sembra complicato da implementare
         //Per questioni grafiche e di animazione rivolgersi in altra sede (non siamo competenti)
         #endregion
 
@@ -75,7 +75,7 @@ namespace SuperMario
         private void frmGioco_KeyDown(object sender, KeyEventArgs e)
         {
             // Shift per scattare (non in volo)
-            if (e.KeyCode == Keys.ShiftKey && !inAria) velocitaMuovi = 10;
+            if (e.KeyCode == Keys.ShiftKey && !inAria) velocitaMuovi = 7;
 
             //Movimento orizzontale (else if per evitare conflitti)
 
@@ -100,7 +100,7 @@ namespace SuperMario
                 direzioneBase = "sinistra";
             }       
 
-            //Salto (solo se non è già in aria)
+            //Salto (solo se non Ã¨ giÃ  in aria)
             if (e.KeyCode == Keys.Space && !inAria)
             {
                 //Cambia immagine in base alla direzione
@@ -134,10 +134,10 @@ namespace SuperMario
 
         private void tmrGioco_Tick(object sender, EventArgs e)
         {
-            if(staCamminando)
+            if(staCamminando && !inAria)
             {   
                 ritardo++;
-                if(ritardo == 3)
+                if(ritardo == 2)
                 {
                     pbxPlayer.Image = (direzioneBase == "destra") ? frameMovimentoMario[indice] : frameMovimentoMario[indice+3];
                     indice = (indice + 1) % 3;
@@ -210,7 +210,7 @@ namespace SuperMario
             if (pbxPlayer.Bounds.IntersectsWith(pbxBloccoSpeciale.Bounds))
             {
                 //Se non si trova sul blocco ed entra in contatto con la parte superiore del blocco
-                if (!suBlocco && HitBoxBlocco.Top > HitBoxGiocatore.Bottom)
+                if (!suBlocco && HitBoxBlocco.Top >= HitBoxGiocatore.Bottom)
                 {
                     //Resta sopra al mattone
                     pbxPlayer.Image = (direzioneBase == "destra") ? Properties.Resources.SuperMario_GuardaDestra : Properties.Resources.SuperMario_GuardaSinistra;
@@ -252,7 +252,8 @@ namespace SuperMario
                 if ((x.Tag == "sfondo" || x.Tag == "pavimento" || x.Tag == "blocco_speciale" || x.Tag == "blocco") && pbxSfondo.Right != this.Right)
                     x.Left -= velocitaMuovi;
             if (pbxPlayer.Parent == pbxSfondo)
-                pbxPlayer.Left += velocitaMuovi; // Compensa se Mario è figlio dello sfondo
+                pbxPlayer.Left += velocitaMuovi; // Compensa se Mario Ã¨ figlio dello sfondo
         }
     }
 }
+
