@@ -19,7 +19,7 @@ namespace SuperMario.Properties {
     // tramite uno strumento quale ResGen o Visual Studio.
     // Per aggiungere o rimuovere un membro, modificare il file con estensione ResX ed eseguire nuovamente ResGen
     // con l'opzione /str oppure ricompilare il progetto VS.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -61,16 +61,6 @@ namespace SuperMario.Properties {
         }
         
         /// <summary>
-        ///   Cerca una risorsa localizzata di tipo System.Byte[].
-        /// </summary>
-        internal static byte[] SuperLuigi_GuardaDestra {
-            get {
-                object obj = ResourceManager.GetObject("SuperLuigi_GuardaDestra", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Cerca una risorsa localizzata di tipo System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap SuperMario_Background {
@@ -83,10 +73,47 @@ namespace SuperMario.Properties {
         /// <summary>
         ///   Cerca una risorsa localizzata di tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap SuperMario_BloccoResistente {
+            get {
+                object obj = ResourceManager.GetObject("SuperMario_BloccoResistente", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap SuperMario_BloccoSpeciale {
             get {
                 object obj = ResourceManager.GetObject("SuperMario_BloccoSpeciale", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.IO.UnmanagedMemoryStream simile a System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream SuperMario_BrickSmash {
+            get {
+                return ResourceManager.GetStream("SuperMario_BrickSmash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.IO.UnmanagedMemoryStream simile a System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream SuperMario_Bump {
+            get {
+                return ResourceManager.GetStream("SuperMario_Bump", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.IO.UnmanagedMemoryStream simile a System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream SuperMario_Coin {
+            get {
+                return ResourceManager.GetStream("SuperMario_Coin", resourceCulture);
             }
         }
         
@@ -107,6 +134,15 @@ namespace SuperMario.Properties {
             get {
                 object obj = ResourceManager.GetObject("SuperMario_GuardaSinistra", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.IO.UnmanagedMemoryStream simile a System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream SuperMario_Jump {
+            get {
+                return ResourceManager.GetStream("SuperMario_Jump", resourceCulture);
             }
         }
         
@@ -133,6 +169,16 @@ namespace SuperMario.Properties {
         /// <summary>
         ///   Cerca una risorsa localizzata di tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap SuperMario_Pipe {
+            get {
+                object obj = ResourceManager.GetObject("SuperMario_Pipe", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap SuperMario_Salto {
             get {
                 object obj = ResourceManager.GetObject("SuperMario_Salto", resourceCulture);
@@ -147,6 +193,15 @@ namespace SuperMario.Properties {
             get {
                 object obj = ResourceManager.GetObject("SuperMario_SaltoSinistra", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.IO.UnmanagedMemoryStream simile a System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream SuperMario_Theme {
+            get {
+                return ResourceManager.GetStream("SuperMario_Theme", resourceCulture);
             }
         }
         

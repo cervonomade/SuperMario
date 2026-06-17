@@ -6,9 +6,11 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using NAudio.Wave;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Media;
 
 
 namespace SuperMario
@@ -19,27 +21,34 @@ namespace SuperMario
         //10:30 17/01 -> sistemato movimento a destra e sinistra, aggiunto shift per correre
         //TODO: aggiungere salto, pensare a cosa fare alla fine del livello (es.animazione automatica)
 
-        //19:30 18/01 -> INTRODOTTO IL SALTO INVIAMO UN MESSAGIO DI CONFERMA SE TI VA BENE ALTRIMENTI TE LO CANCELLO E RIFACCIO COMMIT E PUSH
+        //19:30 18/01 -> INTRODOTTO IL SALTO INVIAMO UN MESSAGGIO DI CONFERMA SE TI VA BENE ALTRIMENTI TE LO CANCELLO E RIFACCIO COMMIT E PUSH
 
         //21:23 21/01 -> aggiornamento del salto e vari fix visivi con aggiunta di grafiche migliorate
 
         //21:15 26/01 -> sistemato il movimento e alcuni bug visivi, aggiunto blocco con punto interrogativo
 
-        //TODO: UNA VOLTA AVER AGGIUNTO I BLOCCHI CONTROLLARE SE POSSO SALTARE
-        //+TODO(FACOLTATIVO PER IL MOMENTO): IMPLEMENTARE UN SALTO GRADUALE PER MARIO E CREARE UN MENU INZIALE PER SELEZIONARE IL PERSONAGGIO
+        //08/06 - 16/06 (pure al compleanno grinding) -> implementati i vari tipi di blocchi, grafiche e migliorie generali tra cui suoni e logiche di gioco
+
+        //+TODO(FACOLTATIVO PER IL MOMENTO): CREARE UN MENU INZIALE PER SELEZIONARE IL PERSONAGGIO
         #endregion
 
         #region SPUNTI
-        //Per tutto il movimento orizzontale (compresi scatto ecc. il lavoro svolto fino all'ultima commit (26/01) sembra essere relativamente buono e non necessita di modifiche sostanziali
-        //In futuro verrà deciso se implementare il salto graduale che a parer mio non sembra complicato da implementare
-        //Per questioni grafiche e di animazione rivolgersi in altra sede (non siamo competenti)
+
+        // Barra con info sopra, punti, vite, tempo, monete ecc
+        // Monete che escono dai blocchi speciali, in futuro funghi ecc
+        // DA FARE I TUBI, no cambio mondo (entri in un tubo) teniamoli easy
+
         #endregion
+
+        #region VARIABILI E COSTANTI
 
         //Variabili di movimento
 
+        int velocitaMuovi = 5;  //Velocita di movimento
+        const int limiteSalto = 15;   //Limite salto (quanto puo saltare)
+
         //Array contenente i frame del movimento (sinistra e destra)
-        Image[] frameMovimentoMario = 
-        {
+        Image[] frameMovimentoMario = {
             Properties.Resources.SuperMario_WalkingF1,
             Properties.Resources.SuperMario_WalkingF2,
             Properties.Resources.SuperMario_WalkingF3,
@@ -51,42 +60,95 @@ namespace SuperMario
         //Direzione sguardo
         bool dirDestra = false;
         bool dirSinistra = false;
+        string direzioneBase = "destra"; //Ultima direzione in cui guardava il personaggio (per sapere che immagine usare quando atterra)
 
         //Stato personaggio
         bool staCamminando = false;
         bool salto = false;
         bool inAria = false;
         bool suBlocco = false;
+        int suBloccoIndex = 0;
 
+        // Indica quale blocco (1 o 2) ha il giocatore sopra; 0 = nessuno        
         int indice = 0;
         int ritardo = 0;
-        int velocitaMuovi = 5;  //Velocita di movimento
-        int limiteSalto = 15;   //Limite salto (quanto puo saltare)
-
         int saltoGraduale = 0;  //Contatore che nel salto viene incrementato fino a limiteSalto durante la salita e decrementato durante la discesa
 
-        string direzioneBase = "destra"; //Ultima direzione in cui guardava il personaggio (per sapere che immagine usare quando atterra)
+        // Blocchi speciali e mattoni
+        BloccoSpeciale bloccoSpeciale1 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale2 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale3 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale4 = new BloccoSpeciale();
+        Mattone mattone1 = new Mattone();
+        Mattone mattone2 = new Mattone();
+        Mattone mattone3 = new Mattone();
+
+        IWavePlayer themePlayer;   //Player !!Diverso da SoundPlayer per permettere la riproduzione in loop e piu suoni!!
+
+        #endregion
 
         public frmGioco()
         {
             InitializeComponent();
+
+            //Background music (tema principale)
+            themePlayer = new WaveOutEvent();
+            themePlayer.Init(new WaveFileReader(Properties.Resources.SuperMario_Theme));
+            themePlayer.Play(); //METTERE A COMMENTO PER EVITARE SUONI DI SOTTOFONDO
+
+            PortaBlocchiDavanti();
+        }
+
+        // Porta in primo piano tutti i blocchi/mattoni per assicurare l'ordine visivo desiderato
+        private void PortaBlocchiDavanti()
+        {
+            pbxBloccoSpeciale1?.BringToFront();
+            pbxBloccoSpeciale2?.BringToFront();
+            pbxBloccoSpeciale3?.BringToFront();
+            pbxBloccoSpeciale4?.BringToFront();
+            pbxMattone1?.BringToFront();
+            pbxMattone2?.BringToFront();
+            pbxMattone3?.BringToFront();
+        }
+
+        // Restituisce una hitbox sicura per un PictureBox o Rectangle.Empty se il controllo non è utilizzabile
+        private Rectangle CalcolaHitBox(PictureBox pbx)
+        {
+            // Evita NullReferenceException quando pbx è null
+            if (pbx == null)
+                return Rectangle.Empty;
+
+            try
+            {
+                //Se non esiste o non fa piu parte dello sfondo
+                if (!this.Contains(pbx) && (pbx.Parent != pbxSfondo))
+                {
+                    return Rectangle.Empty;
+                }
+
+                return this.RectangleToClient(pbx.RectangleToScreen(pbx.ClientRectangle));
+            }
+            catch
+            {
+                return Rectangle.Empty;
+            }
         }
 
         private void frmGioco_KeyDown(object sender, KeyEventArgs e)
         {
-            // Shift per scattare (non in volo)
+            // Shift per scattare (non può iniziare a scattare in volo)
             if (e.KeyCode == Keys.ShiftKey && !inAria) velocitaMuovi = 7;
 
             //Movimento orizzontale (else if per evitare conflitti)
 
             //Guarda a destra
             if (e.KeyCode == Keys.Right)
-            {              
+            {
                 //Aggiorna variabili di direzione
                 dirSinistra = false;
+
                 dirDestra = true;
                 staCamminando = true;
-
                 direzioneBase = "destra";
             }
             //Guarda a sinistra
@@ -94,11 +156,11 @@ namespace SuperMario
             {
                 //Aggiorna variabili di direzione
                 dirDestra = false;
+
                 dirSinistra = true;
                 staCamminando = true;
-
                 direzioneBase = "sinistra";
-            }       
+            }
 
             //Salto (solo se non è già in aria)
             if (e.KeyCode == Keys.Space && !inAria)
@@ -112,10 +174,15 @@ namespace SuperMario
 
                 //Inizializza contatore salto
                 saltoGraduale = limiteSalto;
+
+                //Suono del salto (qui e non in tmrGioco_Tick per evitare che venga riprodotto ad ogni tick durante il salto) -> WaveOutEvent per permettere la riproduzione multipla
+                WaveOutEvent jumpPlayer = new WaveOutEvent();
+                jumpPlayer.Init(new WaveFileReader(Properties.Resources.SuperMario_Jump));
+                jumpPlayer.Play();
             }
 
             //Modifica variabile di stato camminando (se si preme una freccia sta camminando)
-            if(dirDestra || dirSinistra) staCamminando = true;
+            if (dirDestra || dirSinistra) staCamminando = true;
         }
 
         private void frmGioco_KeyUp(object sender, KeyEventArgs e)
@@ -128,71 +195,110 @@ namespace SuperMario
             else if (e.KeyCode == Keys.Left) dirSinistra = false;
 
             //Modifica variabile di stato camminando (se non si preme nessuna freccia non sta camminando)
-            if (!dirDestra || !dirSinistra) staCamminando = false;
+            if (!dirDestra && !dirSinistra) staCamminando = false;
 
         }
 
         private void tmrGioco_Tick(object sender, EventArgs e)
         {
-            if(staCamminando && !inAria)
-            {   
+            #region GESTIONE ANIMAZIONE E IMMAGINI
+
+            //Gestione "animazione" camminata (se cammina a terra) tramite array di frame e ritardo (per evitare che cambi frame ad ogni tick)
+            if (staCamminando && !inAria)
+            {
                 ritardo++;
-                if(ritardo == 2)
+
+                if (ritardo == 2)    //ogni 2 tick cambia frame (modificabile per velocizzare o rallentare l'animazione)
                 {
-                    pbxPlayer.Image = (direzioneBase == "destra") ? frameMovimentoMario[indice] : frameMovimentoMario[indice+3];
+                    pbxPlayer.Image = (direzioneBase == "destra") ? frameMovimentoMario[indice] : frameMovimentoMario[indice + 3]; //prime 3 immagini per destra, ultime 3 per sinistra
                     indice = (indice + 1) % 3;
                     ritardo = 0;
                 }
             }
-            else
+
+            //Player a terra e fermoo: reset animazione a frame base (per evitare che resti in un frame di camminata quando si ferma)
+            else if (!inAria)
             {
-                if(!inAria)
-                {
-                    indice = 0;
-                    ritardo = 0;
-                    pbxPlayer.Image = Properties.Resources.SuperMario_GuardaDestra;
-                }
+                indice = 0;
+                ritardo = 0;
+                pbxPlayer.Image = (direzioneBase == "destra") ? Properties.Resources.SuperMario_GuardaDestra : Properties.Resources.SuperMario_GuardaSinistra;
             }
-                
-            //Bounds del giocatore rispetto al form (pbxPlayer)
+
+            #endregion
+
+
+            #region VARIABILI E CALCOLI -> modificate continuamente durante l'esecuzione
+
+            //Hitbox del giocatore (usata per le collisioni) calcolata a ogni tick in base alla posizione attuale del player
             Rectangle HitBoxGiocatore = this.RectangleToClient(pbxPlayer.RectangleToScreen(pbxPlayer.ClientRectangle)); //RectangleToScreen calcola le coordinate assolute dello schermo, RectangleToClient le riporta relative al form
 
             int centroSchermo = this.ClientRectangle.Width / 2; //Centro dello schermo (per lo spostamento degli elementi)
 
-            // Movimento orizzontale
-            if (dirDestra && HitBoxGiocatore.Right <= centroSchermo)
-                pbxPlayer.Left += velocitaMuovi;
-            else if (dirSinistra && HitBoxGiocatore.Left > 0)
-                pbxPlayer.Left -= velocitaMuovi;
-            else if (dirDestra && HitBoxGiocatore.Right > centroSchermo)
-                SpostaElementi();
+            // Hitbox blocchi/controlli (usi CalcolaHitBox per evitare eccezioni se un controllo è stato rimosso/rotto)
+            Rectangle HitBoxSpeciale1 = CalcolaHitBox(pbxBloccoSpeciale1);
+            Rectangle HitBoxSpeciale2 = CalcolaHitBox(pbxBloccoSpeciale2);
+            Rectangle HitBoxSpeciale3 = CalcolaHitBox(pbxBloccoSpeciale3);
+            Rectangle HitBoxSpeciale4 = CalcolaHitBox(pbxBloccoSpeciale4);
 
-            //Salto
-            if (salto)  
+            Rectangle HitBoxMattone1 = CalcolaHitBox(pbxMattone1);
+            Rectangle HitBoxMattone2 = CalcolaHitBox(pbxMattone2);
+            Rectangle HitBoxMattone3 = CalcolaHitBox(pbxMattone3);
+
+
+            #endregion
+
+            // Movimento orizzontale
+
+            // Se nessuno dei blocchi è in correzione permetti il controllo diretto del giocatore
+            if (!bloccoSpeciale1.InCorrezione && !bloccoSpeciale2.InCorrezione)
             {
-                //pbxPlayer si sposta verso l'alto fino a quando saltoGraduale > 0
-                
-                pbxPlayer.Top -= saltoGraduale;
-                saltoGraduale -= 1; //Decrementa il contatore del salto
-                if (saltoGraduale <= 0)
-                {
-                    salto = false; //Quando il contatore arriva a 0 il salto termina
-                    suBlocco = false;
-                }
+                bool bloccatoDestra = (bloccoSpeciale1.DirezioneBloccata == "destra" || bloccoSpeciale2.DirezioneBloccata == "destra");
+                bool bloccatoSinistra = (bloccoSpeciale1.DirezioneBloccata == "sinistra" || bloccoSpeciale2.DirezioneBloccata == "sinistra");
+
+                //Cammina verso destra
+                if (dirDestra && HitBoxGiocatore.Right <= centroSchermo && !bloccatoDestra)
+                    pbxPlayer.Left += velocitaMuovi;
+
+                //Cammina verso sinistra
+                else if (dirSinistra && HitBoxGiocatore.Left > 0 && !bloccatoSinistra)
+                    pbxPlayer.Left -= velocitaMuovi;
+
+                //Sposta gli elementi quando il personaggio raggiunge il centro dello schermo
+                else if (dirDestra && HitBoxGiocatore.Right > centroSchermo)
+                    SpostaElementi();
+            }
+            else
+            {
+                // Quando il blocco esegue smoothing, lascia che sia la classe a muovere il player
             }
 
-            //Quando durante la discesa pbxPlayer arriva sotto il pavimento, lo fa riscendere gradualmente fino a poggiare sul pavimento
-            else if (HitBoxGiocatore.Bottom < pbxPavimento.Top && !suBlocco) 
+            //Salto
+            if (salto)
+            {
+                //pbxPlayer si sposta verso l'alto finchè saltoGraduale > 0
+
+                pbxPlayer.Top -= saltoGraduale;
+                saltoGraduale -= 1; //Decrementa il contatore del salto
+                
+                if (saltoGraduale <= 0)
+                    salto = false; //Quando il contatore arriva a 0 il salto termina                    
+                
+                suBlocco = false;
+                suBloccoIndex = 0;
+            }
+
+            //Discesa graduale (se non è in salto e non è sopra un blocco, scende verso il pavimento)
+            else if (HitBoxGiocatore.Bottom < pbxPavimento.Top && !suBlocco)
             {
                 pbxPlayer.Top += saltoGraduale;
                 saltoGraduale += 1;
             }
 
             //Altrimenti se si trova sopra il pavimento e non sta saltando, lo posiziona sul pavimento
-            else if(HitBoxGiocatore.Bottom >=  pbxPavimento.Top)
-            {                             
+            else if (HitBoxGiocatore.Bottom >= pbxPavimento.Top)
+            {
                 //Modifica l'immagine in base alla direzione
-                if(!staCamminando)
+                if (!staCamminando)
                     pbxPlayer.Image = (direzioneBase == "destra") ? Properties.Resources.SuperMario_GuardaDestra : Properties.Resources.SuperMario_GuardaSinistra;
 
                 //Posiziona pbxPlayer sul pavimento
@@ -200,47 +306,60 @@ namespace SuperMario
 
                 //Modifica variabili di stato
                 inAria = false;
+
+                suBlocco = true;
+                suBloccoIndex = 0;
             }
 
-            #region BLOCCO
+            #region BLOCCI SPECIALI
 
-            Rectangle HitBoxBlocco = this.RectangleToClient(pbxBloccoSpeciale.RectangleToScreen(pbxBloccoSpeciale.ClientRectangle));
+            #region pbxBloccoSpeciale1
 
-            //Se entra a contatto con pbxBloccoSpeciale (ovvero il blocco con il punto interrogativo)
-            if (pbxPlayer.Bounds.IntersectsWith(pbxBloccoSpeciale.Bounds))
-            {
-                //Se non si trova sul blocco ed entra in contatto con la parte superiore del blocco
-                if (!suBlocco && HitBoxBlocco.Top >= HitBoxGiocatore.Bottom)
-                {
-                    //Resta sopra al mattone
-                    pbxPlayer.Image = (direzioneBase == "destra") ? Properties.Resources.SuperMario_GuardaDestra : Properties.Resources.SuperMario_GuardaSinistra;
-
-                    pbxPlayer.Top = pbxBloccoSpeciale.Top - pbxPlayer.Height;
-                    inAria = false;
-                    salto = false;
-                    suBlocco = true;
-                    saltoGraduale = 0;
-                }
-
-                else if(!suBlocco && HitBoxBlocco.Top + pbxBloccoSpeciale.Height >= HitBoxGiocatore.Top && HitBoxGiocatore.Bottom > HitBoxBlocco.Top && (HitBoxGiocatore.Right > HitBoxBlocco.Left || HitBoxGiocatore.Left < HitBoxBlocco.Right))
-                {
-                    //Colpisce il mattone da sotto
-                    pbxPlayer.Top = pbxBloccoSpeciale.Bottom;
-                    salto = false;
-                    saltoGraduale = 1;
-                }
-                else if(!suBlocco && HitBoxGiocatore.Right >= HitBoxBlocco.Left)
-                {
-                    velocitaMuovi = 0;
-                }
-                velocitaMuovi = 5;
-            }
-
-            //Modifica di su blocco
-            if (suBlocco && (HitBoxGiocatore.Right < HitBoxBlocco.Left || HitBoxGiocatore.Left > HitBoxBlocco.Right))
-                suBlocco = false;
+            // Gestione BloccoSpeciale 1
+            GestisciBloccoSpeciale(bloccoSpeciale1, pbxBloccoSpeciale1, HitBoxSpeciale1, 1, HitBoxGiocatore);
 
             #endregion
+
+            #region pbxBloccoSpeciale2
+            // Gestione BloccoSpeciale 2
+            GestisciBloccoSpeciale(bloccoSpeciale2, pbxBloccoSpeciale2, HitBoxSpeciale2, 2, HitBoxGiocatore);
+
+            #endregion
+
+            #region pbxBloccoSpeciale3
+            // Gestione BloccoSpeciale 3
+            GestisciBloccoSpeciale(bloccoSpeciale3, pbxBloccoSpeciale3, HitBoxSpeciale3, 6, HitBoxGiocatore);
+            #endregion
+
+            #region pbxBloccoSpeciale4
+            // Gestione BloccoSpeciale 4
+            GestisciBloccoSpeciale(bloccoSpeciale4, pbxBloccoSpeciale4, HitBoxSpeciale4, 4, HitBoxGiocatore);
+            #endregion
+
+            #endregion
+
+            #region MATTONI
+
+            #region pbxMattone1
+            // Gestione Mattone 1
+            GestisciMattone(mattone1, ref pbxMattone1, HitBoxMattone1, 7, HitBoxGiocatore);
+            #endregion
+
+            #region pbxMattone2
+
+            // Gestione Mattone 2
+            GestisciMattone(mattone2, ref pbxMattone2, HitBoxMattone2, 3, HitBoxGiocatore);
+
+            #endregion
+
+            #region pbxMattone3
+            // Gestione Mattone 3
+            GestisciMattone(mattone3, ref pbxMattone3, HitBoxMattone3, 5, HitBoxGiocatore);
+            #endregion
+
+            #endregion
+
+
         }
 
         /// <summary>
@@ -249,11 +368,75 @@ namespace SuperMario
         private void SpostaElementi()
         {
             foreach (Control x in this.Controls)
-                if ((x.Tag == "sfondo" || x.Tag == "pavimento" || x.Tag == "blocco_speciale" || x.Tag == "blocco") && pbxSfondo.Right != this.Right)
+                if (x.Tag == "sfondo")
                     x.Left -= velocitaMuovi;
-            if (pbxPlayer.Parent == pbxSfondo)
-                pbxPlayer.Left += velocitaMuovi; // Compensa se Mario è figlio dello sfondo
+
+            pbxPlayer.Left += velocitaMuovi; // Compensa se Mario è figlio dello sfondo
+        }
+
+        /// <summary>
+        /// Helper per gestire la collisione e lo stato dei blocchi speciali
+        /// </summary>
+
+        private bool GestisciBloccoSpeciale(BloccoSpeciale blocco, PictureBox pbx, Rectangle hitBox, int idBlocco, Rectangle HitBoxGiocatore)
+        {
+            if (hitBox != Rectangle.Empty && HitBoxGiocatore.IntersectsWith(hitBox))
+            {
+                if (blocco.GestisciCollisione(pbxPlayer, pbx, HitBoxGiocatore, hitBox, ref dirDestra, ref dirSinistra, ref staCamminando, ref salto, ref saltoGraduale, ref inAria, ref suBlocco, direzioneBase))
+                {
+                    if (suBlocco)
+                        suBloccoIndex = idBlocco;
+
+                    return true;
+                }
+            }
+
+            // Se il giocatore non è più sopra il blocco, resetta lo stato
+            if (suBloccoIndex == idBlocco && (HitBoxGiocatore.Right < hitBox.Left || HitBoxGiocatore.Left > hitBox.Right))
+            {
+                suBlocco = false;
+                suBloccoIndex = 0;
+            }
+
+            // Aggiorna stato del blocco (correzione e cooldown)
+            blocco.Aggiorna(pbxPlayer);
+
+            return false;
+        }
+
+
+
+        /// <summary>
+        /// Helper per gestire la collisione con i mattoni
+        /// </summary>        
+        private void GestisciMattone(Mattone mattone, ref PictureBox pbx, Rectangle hitBox, int ownerId, Rectangle HitBoxGiocatore)
+        {
+            if (pbx == null)
+                return;
+
+            //Se il giocatore entra in contatto con il mattone
+            if (hitBox != Rectangle.Empty && HitBoxGiocatore.IntersectsWith(hitBox))
+            {
+                if (mattone.GestisciCollisione(pbxPlayer, pbx, HitBoxGiocatore, hitBox, ref dirDestra, ref dirSinistra, ref staCamminando, ref salto, ref saltoGraduale, ref inAria, ref suBlocco, direzioneBase))
+                {
+                    if (suBlocco)
+                        suBloccoIndex = ownerId;
+
+                    // Se il mattone è marcato come rotto o è stato eliminato, rimuovi il riferimento
+                    if (pbx == null || (pbx.Tag as string) == "rotto")
+                    {
+                        pbx.Dispose();
+                        pbx = null;
+                        return;
+                    }
+                }
+            }
+
+            if (suBloccoIndex == ownerId && (HitBoxGiocatore.Right < hitBox.Left || HitBoxGiocatore.Left > hitBox.Right))
+            {
+                suBlocco = false;
+                suBloccoIndex = 0;
+            }
         }
     }
 }
-
