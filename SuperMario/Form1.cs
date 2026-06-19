@@ -1,16 +1,19 @@
 using Microsoft.VisualBasic.ApplicationServices;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Text;
 using System.Linq;
-using NAudio.Wave;
+using System.Media;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Media;
 
 
 namespace SuperMario
@@ -36,7 +39,6 @@ namespace SuperMario
 
         // Barra con info sopra, punti, vite, tempo, monete ecc
         // Monete che escono dai blocchi speciali, in futuro funghi ecc
-        // DA FARE I TUBI, no cambio mondo (entri in un tubo) teniamoli easy
 
         #endregion
 
@@ -82,14 +84,27 @@ namespace SuperMario
         Mattone mattone1 = new Mattone();
         Mattone mattone2 = new Mattone();
         Mattone mattone3 = new Mattone();
+        Tubo tubo1 = new Tubo();
+        Tubo tubo2 = new Tubo();
+        Tubo tubo3 = new Tubo();
+        Tubo tubo4 = new Tubo();
 
         IWavePlayer themePlayer;   //Player !!Diverso da SoundPlayer per permettere la riproduzione in loop e piu suoni!!
 
         #endregion
 
+        int tempoRimanente = 300; // Tempo iniziale in secondi
+
+        private PrivateFontCollection marioFontCollection = new PrivateFontCollection();
+        private Font marioFont;
+
         public frmGioco()
         {
             InitializeComponent();
+
+            CaricaFontDaRisorse();
+
+            pbxSfondo.Location = new Point(0, 0);
 
             //Background music (tema principale)
             themePlayer = new WaveOutEvent();
@@ -97,8 +112,9 @@ namespace SuperMario
             themePlayer.Play(); //METTERE A COMMENTO PER EVITARE SUONI DI SOTTOFONDO
 
             PortaBlocchiDavanti();
-        }
+        }        
 
+        #region tmp
         // Porta in primo piano tutti i blocchi/mattoni per assicurare l'ordine visivo desiderato
         private void PortaBlocchiDavanti()
         {
@@ -109,6 +125,12 @@ namespace SuperMario
             pbxMattone1?.BringToFront();
             pbxMattone2?.BringToFront();
             pbxMattone3?.BringToFront();
+            pbxPipe1.BringToFront();
+            pbxPipe2.BringToFront();
+            pbxPipe3.BringToFront();
+            pbxPipe4.BringToFront();
+
+            pbxPavimento1.BringToFront(); //SEMPRE PER ULTIMA
         }
 
         // Restituisce una hitbox sicura per un PictureBox o Rectangle.Empty se il controllo non è utilizzabile
@@ -227,6 +249,7 @@ namespace SuperMario
             #endregion
 
 
+
             #region VARIABILI E CALCOLI -> modificate continuamente durante l'esecuzione
 
             //Hitbox del giocatore (usata per le collisioni) calcolata a ogni tick in base alla posizione attuale del player
@@ -244,6 +267,22 @@ namespace SuperMario
             Rectangle HitBoxMattone2 = CalcolaHitBox(pbxMattone2);
             Rectangle HitBoxMattone3 = CalcolaHitBox(pbxMattone3);
 
+            // Hitbox tubi (usiamo i PictureBox creati dal designer: pbxPipe1..3)
+            Rectangle HitBoxTubo1 = CalcolaHitBox(pbxPipe1);
+            Rectangle HitBoxTubo2 = CalcolaHitBox(pbxPipe2);
+            Rectangle HitBoxTubo3 = CalcolaHitBox(pbxPipe3);
+            Rectangle HitBoxTubo4 = CalcolaHitBox(pbxPipe4);
+
+
+            #endregion
+
+            #region TUBI
+
+            // Gestione tubi (piattaforme solide) usando i picturebox del designer
+            GestisciTubo(tubo1, pbxPipe1, HitBoxTubo1, 8, HitBoxGiocatore);
+            GestisciTubo(tubo2, pbxPipe2, HitBoxTubo2, 9, HitBoxGiocatore);
+            GestisciTubo(tubo3, pbxPipe3, HitBoxTubo3, 10, HitBoxGiocatore);
+            GestisciTubo(tubo4, pbxPipe4, HitBoxTubo4, 11, HitBoxGiocatore);
 
             #endregion
 
@@ -267,10 +306,6 @@ namespace SuperMario
                 else if (dirDestra && HitBoxGiocatore.Right > centroSchermo)
                     SpostaElementi();
             }
-            else
-            {
-                // Quando il blocco esegue smoothing, lascia che sia la classe a muovere il player
-            }
 
             //Salto
             if (salto)
@@ -279,30 +314,23 @@ namespace SuperMario
 
                 pbxPlayer.Top -= saltoGraduale;
                 saltoGraduale -= 1; //Decrementa il contatore del salto
-                
+
                 if (saltoGraduale <= 0)
                     salto = false; //Quando il contatore arriva a 0 il salto termina                    
-                
+
                 suBlocco = false;
                 suBloccoIndex = 0;
             }
 
-            //Discesa graduale (se non è in salto e non è sopra un blocco, scende verso il pavimento)
-            else if (HitBoxGiocatore.Bottom < pbxPavimento.Top && !suBlocco)
-            {
-                pbxPlayer.Top += saltoGraduale;
-                saltoGraduale += 1;
-            }
-
             //Altrimenti se si trova sopra il pavimento e non sta saltando, lo posiziona sul pavimento
-            else if (HitBoxGiocatore.Bottom >= pbxPavimento.Top)
+            else if (HitBoxGiocatore.Bottom >= pbxPavimento1.Top)
             {
                 //Modifica l'immagine in base alla direzione
                 if (!staCamminando)
                     pbxPlayer.Image = (direzioneBase == "destra") ? Properties.Resources.SuperMario_GuardaDestra : Properties.Resources.SuperMario_GuardaSinistra;
 
                 //Posiziona pbxPlayer sul pavimento
-                pbxPlayer.Top = pbxPavimento.Top - pbxPlayer.Height;
+                pbxPlayer.Top = pbxPavimento1.Top - pbxPlayer.Height;
 
                 //Modifica variabili di stato
                 inAria = false;
@@ -311,7 +339,16 @@ namespace SuperMario
                 suBloccoIndex = 0;
             }
 
-            #region BLOCCI SPECIALI
+            //Discesa graduale (se non è in salto e non è sopra un blocco, scende verso il pavimento)
+            else if (HitBoxGiocatore.Bottom < pbxPavimento1.Top && !suBlocco)
+            {
+                pbxPlayer.Top += saltoGraduale;
+                saltoGraduale += 1;
+            }
+
+
+
+            #region COLLISIONE
 
             #region pbxBloccoSpeciale1
 
@@ -367,11 +404,8 @@ namespace SuperMario
         /// </summary>
         private void SpostaElementi()
         {
-            foreach (Control x in this.Controls)
-                if (x.Tag == "sfondo")
-                    x.Left -= velocitaMuovi;
-
-            pbxPlayer.Left += velocitaMuovi; // Compensa se Mario è figlio dello sfondo
+            pbxSfondo.Left -= velocitaMuovi; // Sposta lo sfondo verso sinistra
+            pbxPlayer.Left += velocitaMuovi; // Sposta il personaggio verso sinistra per dare l'illusione di movimento a destra
         }
 
         /// <summary>
@@ -438,5 +472,42 @@ namespace SuperMario
                 suBloccoIndex = 0;
             }
         }
+
+        /// <summary>
+        /// Gestione semplice per i tubi (piattaforme non distruttibili)
+        /// </summary>
+        private void GestisciTubo(Tubo tubo, PictureBox pbx, Rectangle hitBox, int ownerId, Rectangle HitBoxGiocatore)
+        {
+            if (pbx == null) return;
+
+            if (hitBox != Rectangle.Empty && HitBoxGiocatore.IntersectsWith(hitBox))
+            {
+                if (tubo.GestisciCollisione(pbxPlayer, pbx, HitBoxGiocatore, hitBox, ref dirDestra, ref dirSinistra, ref staCamminando, ref salto, ref saltoGraduale, ref inAria, ref suBlocco, direzioneBase))
+                {
+                    if (suBlocco)
+                        suBloccoIndex = ownerId;
+                }
+            }
+
+            if (suBloccoIndex == ownerId && (HitBoxGiocatore.Right < hitBox.Left || HitBoxGiocatore.Left > hitBox.Right))
+            {
+                suBlocco = false;
+                suBloccoIndex = 0;
+            }
+        }
+
+        private void tmrTempoRimasto_Tick(object sender, EventArgs e)
+        {
+            lblTime.Text = $"TEMPO\n {tempoRimanente--}";
+
+            if (tempoRimanente < 0)
+            {
+                tmrTempoRimasto.Stop();
+                tmrGioco.Stop();
+                MessageBox.Show("Tempo scaduto! Hai perso!");
+                this.Close(); // Chiude il form di gioco)
+            }
+        }
     }
+        #endregion
 }

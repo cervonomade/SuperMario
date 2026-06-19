@@ -118,6 +118,16 @@ namespace SuperMario.Properties {
         }
         
         /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.Byte[].
+        /// </summary>
+        internal static byte[] SuperMario_Font {
+            get {
+                object obj = ResourceManager.GetObject("SuperMario_Font", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Cerca una risorsa localizzata di tipo System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap SuperMario_GuardaDestra {
