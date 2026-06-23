@@ -21,8 +21,8 @@ namespace SuperMario
     public partial class frmGioco : Form
     {
         #region NOTE_AGGIORNAMENTI
+
         //10:30 17/01 -> sistemato movimento a destra e sinistra, aggiunto shift per correre
-        //TODO: aggiungere salto, pensare a cosa fare alla fine del livello (es.animazione automatica)
 
         //19:30 18/01 -> INTRODOTTO IL SALTO INVIAMO UN MESSAGGIO DI CONFERMA SE TI VA BENE ALTRIMENTI TE LO CANCELLO E RIFACCIO COMMIT E PUSH
 
@@ -32,11 +32,14 @@ namespace SuperMario
 
         //08/06 - 16/06 (pure al compleanno grinding) -> implementati i vari tipi di blocchi, grafiche e migliorie generali tra cui suoni e logiche di gioco
 
-        //+TODO(FACOLTATIVO PER IL MOMENTO): CREARE UN MENU INZIALE PER SELEZIONARE IL PERSONAGGIO
+        //14:30 23/06 -> sistemato sfondo, aggiunti tutti i blocchi speciali, mattoni, pavimenti e tubi (mancano scale)
+
         #endregion
 
         #region SPUNTI
 
+        //+TODO(FACOLTATIVO PER IL MOMENTO): CREARE UN MENU INZIALE PER SELEZIONARE IL PERSONAGGIO
+        //TODO importante -> per alleggerire il codice calcolare hitbox e gestire collisioni solo se non sono gia state superate e sono a schermo
         // Barra con info sopra, punti, vite, tempo, monete ecc
         // Monete che escono dai blocchi speciali, in futuro funghi ecc
 
@@ -76,33 +79,78 @@ namespace SuperMario
         int ritardo = 0;
         int saltoGraduale = 0;  //Contatore che nel salto viene incrementato fino a limiteSalto durante la salita e decrementato durante la discesa
 
-        // Blocchi speciali e mattoni
+        #region BOCCHI-TUBI
+
+        // Blocchi speciali
         BloccoSpeciale bloccoSpeciale1 = new BloccoSpeciale();
         BloccoSpeciale bloccoSpeciale2 = new BloccoSpeciale();
         BloccoSpeciale bloccoSpeciale3 = new BloccoSpeciale();
         BloccoSpeciale bloccoSpeciale4 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale5 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale6 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale7 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale8 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale9 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale10 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale11 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale12 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale13 = new BloccoSpeciale();
+
+        //Mattoni
         Mattone mattone1 = new Mattone();
         Mattone mattone2 = new Mattone();
         Mattone mattone3 = new Mattone();
+        Mattone mattone4 = new Mattone();
+        Mattone mattone5 = new Mattone();
+        Mattone mattone6 = new Mattone();
+        Mattone mattone7 = new Mattone();
+        Mattone mattone8 = new Mattone();
+        Mattone mattone9 = new Mattone();
+        Mattone mattone10 = new Mattone();
+        Mattone mattone11 = new Mattone();
+        Mattone mattone12 = new Mattone();
+        Mattone mattone13 = new Mattone();
+        Mattone mattone14 = new Mattone();
+        Mattone mattone15 = new Mattone();
+        Mattone mattone16 = new Mattone();
+        Mattone mattone17 = new Mattone();
+        Mattone mattone18 = new Mattone();
+        Mattone mattone19 = new Mattone();
+        Mattone mattone20 = new Mattone();
+        Mattone mattone21 = new Mattone();
+        Mattone mattone22 = new Mattone();
+        Mattone mattone23 = new Mattone();
+        Mattone mattone24 = new Mattone();
+        Mattone mattone25 = new Mattone();
+        Mattone mattone26 = new Mattone();
+        Mattone mattone27 = new Mattone();
+        Mattone mattone28 = new Mattone();
+        Mattone mattone29 = new Mattone();
+        Mattone mattone30 = new Mattone();
+
+        //Tubi
         Tubo tubo1 = new Tubo();
         Tubo tubo2 = new Tubo();
         Tubo tubo3 = new Tubo();
         Tubo tubo4 = new Tubo();
+        Tubo tubo5 = new Tubo();
+        Tubo tubo6 = new Tubo();
+
+        #endregion
 
         IWavePlayer themePlayer;   //Player !!Diverso da SoundPlayer per permettere la riproduzione in loop e piu suoni!!
 
         #endregion
 
-        int tempoRimanente = 300; // Tempo iniziale in secondi
-
-        private PrivateFontCollection marioFontCollection = new PrivateFontCollection();
-        private Font marioFont;
+        int tempoRimanente = 300; // Tempo iniziale in secondi        
 
         public frmGioco()
         {
+            CaricaFontDaRisorse();
+
             InitializeComponent();
 
-            CaricaFontDaRisorse();
+            ApplicaFont();
 
             pbxSfondo.Location = new Point(0, 0);
 
@@ -112,25 +160,15 @@ namespace SuperMario
             themePlayer.Play(); //METTERE A COMMENTO PER EVITARE SUONI DI SOTTOFONDO
 
             PortaBlocchiDavanti();
-        }        
+        }
 
-        #region tmp
+
         // Porta in primo piano tutti i blocchi/mattoni per assicurare l'ordine visivo desiderato
         private void PortaBlocchiDavanti()
         {
-            pbxBloccoSpeciale1?.BringToFront();
-            pbxBloccoSpeciale2?.BringToFront();
-            pbxBloccoSpeciale3?.BringToFront();
-            pbxBloccoSpeciale4?.BringToFront();
-            pbxMattone1?.BringToFront();
-            pbxMattone2?.BringToFront();
-            pbxMattone3?.BringToFront();
-            pbxPipe1.BringToFront();
-            pbxPipe2.BringToFront();
-            pbxPipe3.BringToFront();
-            pbxPipe4.BringToFront();
-
-            pbxPavimento1.BringToFront(); //SEMPRE PER ULTIMA
+            foreach(Control c in pbxSfondo.Controls)
+                if (c.Tag != "player")
+                    c.BringToFront();
         }
 
         // Restituisce una hitbox sicura per un PictureBox o Rectangle.Empty se il controllo non è utilizzabile
@@ -138,7 +176,9 @@ namespace SuperMario
         {
             // Evita NullReferenceException quando pbx è null
             if (pbx == null)
+            {                
                 return Rectangle.Empty;
+            }
 
             try
             {
@@ -248,8 +288,6 @@ namespace SuperMario
 
             #endregion
 
-
-
             #region VARIABILI E CALCOLI -> modificate continuamente durante l'esecuzione
 
             //Hitbox del giocatore (usata per le collisioni) calcolata a ogni tick in base alla posizione attuale del player
@@ -262,27 +300,66 @@ namespace SuperMario
             Rectangle HitBoxSpeciale2 = CalcolaHitBox(pbxBloccoSpeciale2);
             Rectangle HitBoxSpeciale3 = CalcolaHitBox(pbxBloccoSpeciale3);
             Rectangle HitBoxSpeciale4 = CalcolaHitBox(pbxBloccoSpeciale4);
+            Rectangle HitBoxSpeciale5 = CalcolaHitBox(pbxBloccoSpeciale5);
+            Rectangle HitBoxSpeciale6 = CalcolaHitBox(pbxBloccoSpeciale6);
+            Rectangle HitBoxSpeciale7 = CalcolaHitBox(pbxBloccoSpeciale7);
+            Rectangle HitBoxSpeciale8 = CalcolaHitBox(pbxBloccoSpeciale8);
+            Rectangle HitBoxSpeciale9 = CalcolaHitBox(pbxBloccoSpeciale9);
+            Rectangle HitBoxSpeciale10 = CalcolaHitBox(pbxBloccoSpeciale10);
+            Rectangle HitBoxSpeciale11 = CalcolaHitBox(pbxBloccoSpeciale11);
+            Rectangle HitBoxSpeciale12 = CalcolaHitBox(pbxBloccoSpeciale12);
+            Rectangle HitBoxSpeciale13 = CalcolaHitBox(pbxBloccoSpeciale13);
 
             Rectangle HitBoxMattone1 = CalcolaHitBox(pbxMattone1);
             Rectangle HitBoxMattone2 = CalcolaHitBox(pbxMattone2);
             Rectangle HitBoxMattone3 = CalcolaHitBox(pbxMattone3);
+            Rectangle HitBoxMattone4 = CalcolaHitBox(pbxMattone4);
+            Rectangle HitBoxMattone5 = CalcolaHitBox(pbxMattone5);
+            Rectangle HitBoxMattone6 = CalcolaHitBox(pbxMattone6);
+            Rectangle HitBoxMattone7 = CalcolaHitBox(pbxMattone7);
+            Rectangle HitBoxMattone8 = CalcolaHitBox(pbxMattone8);
+            Rectangle HitBoxMattone9 = CalcolaHitBox(pbxMattone9);
+            Rectangle HitBoxMattone10 = CalcolaHitBox(pbxMattone10);
+            Rectangle HitBoxMattone11 = CalcolaHitBox(pbxMattone11);
+            Rectangle HitBoxMattone12 = CalcolaHitBox(pbxMattone12);
+            Rectangle HitBoxMattone13 = CalcolaHitBox(pbxMattone13);
+            Rectangle HitBoxMattone14 = CalcolaHitBox(pbxMattone14);
+            Rectangle HitBoxMattone15 = CalcolaHitBox(pbxMattone15);
+            Rectangle HitBoxMattone16 = CalcolaHitBox(pbxMattone16);
+            Rectangle HitBoxMattone17 = CalcolaHitBox(pbxMattone17);
+            Rectangle HitBoxMattone18 = CalcolaHitBox(pbxMattone18);
+            Rectangle HitBoxMattone19 = CalcolaHitBox(pbxMattone19);
+            Rectangle HitBoxMattone20 = CalcolaHitBox(pbxMattone20);
+            Rectangle HitBoxMattone21 = CalcolaHitBox(pbxMattone21);
+            Rectangle HitBoxMattone22 = CalcolaHitBox(pbxMattone22);
+            Rectangle HitBoxMattone23 = CalcolaHitBox(pbxMattone23);
+            Rectangle HitBoxMattone24 = CalcolaHitBox(pbxMattone24);
+            Rectangle HitBoxMattone25 = CalcolaHitBox(pbxMattone25);
+            Rectangle HitBoxMattone26 = CalcolaHitBox(pbxMattone26);
+            Rectangle HitBoxMattone27 = CalcolaHitBox(pbxMattone27);
+            Rectangle HitBoxMattone28 = CalcolaHitBox(pbxMattone28);
+            Rectangle HitBoxMattone29 = CalcolaHitBox(pbxMattone29);
+            Rectangle HitBoxMattone30 = CalcolaHitBox(pbxMattone30);
 
             // Hitbox tubi (usiamo i PictureBox creati dal designer: pbxPipe1..3)
             Rectangle HitBoxTubo1 = CalcolaHitBox(pbxPipe1);
             Rectangle HitBoxTubo2 = CalcolaHitBox(pbxPipe2);
             Rectangle HitBoxTubo3 = CalcolaHitBox(pbxPipe3);
             Rectangle HitBoxTubo4 = CalcolaHitBox(pbxPipe4);
+            Rectangle HitBoxTubo5 = CalcolaHitBox(pbxPipe5);
+            Rectangle HitBoxTubo6 = CalcolaHitBox(pbxPipe6);
 
 
             #endregion
 
             #region TUBI
 
-            // Gestione tubi (piattaforme solide) usando i picturebox del designer
             GestisciTubo(tubo1, pbxPipe1, HitBoxTubo1, 8, HitBoxGiocatore);
             GestisciTubo(tubo2, pbxPipe2, HitBoxTubo2, 9, HitBoxGiocatore);
             GestisciTubo(tubo3, pbxPipe3, HitBoxTubo3, 10, HitBoxGiocatore);
             GestisciTubo(tubo4, pbxPipe4, HitBoxTubo4, 11, HitBoxGiocatore);
+            GestisciTubo(tubo5, pbxPipe5, HitBoxTubo5, 12, HitBoxGiocatore);
+            GestisciTubo(tubo6, pbxPipe6, HitBoxTubo6, 13, HitBoxGiocatore);
 
             #endregion
 
@@ -346,57 +423,58 @@ namespace SuperMario
                 saltoGraduale += 1;
             }
 
+            #region BLOCCHI SPECIALI
 
-
-            #region COLLISIONE
-
-            #region pbxBloccoSpeciale1
-
-            // Gestione BloccoSpeciale 1
             GestisciBloccoSpeciale(bloccoSpeciale1, pbxBloccoSpeciale1, HitBoxSpeciale1, 1, HitBoxGiocatore);
-
-            #endregion
-
-            #region pbxBloccoSpeciale2
-            // Gestione BloccoSpeciale 2
             GestisciBloccoSpeciale(bloccoSpeciale2, pbxBloccoSpeciale2, HitBoxSpeciale2, 2, HitBoxGiocatore);
-
-            #endregion
-
-            #region pbxBloccoSpeciale3
-            // Gestione BloccoSpeciale 3
             GestisciBloccoSpeciale(bloccoSpeciale3, pbxBloccoSpeciale3, HitBoxSpeciale3, 6, HitBoxGiocatore);
-            #endregion
-
-            #region pbxBloccoSpeciale4
-            // Gestione BloccoSpeciale 4
             GestisciBloccoSpeciale(bloccoSpeciale4, pbxBloccoSpeciale4, HitBoxSpeciale4, 4, HitBoxGiocatore);
-            #endregion
+            GestisciBloccoSpeciale(bloccoSpeciale5, pbxBloccoSpeciale5, HitBoxSpeciale5, 13, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale6, pbxBloccoSpeciale6, HitBoxSpeciale6, 14, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale7, pbxBloccoSpeciale7, HitBoxSpeciale7, 15, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale8, pbxBloccoSpeciale8, HitBoxSpeciale8, 16, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale9, pbxBloccoSpeciale9, HitBoxSpeciale9, 17, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale10, pbxBloccoSpeciale10, HitBoxSpeciale10, 18, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale11, pbxBloccoSpeciale11, HitBoxSpeciale11, 19, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale12, pbxBloccoSpeciale12, HitBoxSpeciale12, 20, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale13, pbxBloccoSpeciale13, HitBoxSpeciale13, 21, HitBoxGiocatore);
 
             #endregion
 
             #region MATTONI
 
-            #region pbxMattone1
-            // Gestione Mattone 1
             GestisciMattone(mattone1, ref pbxMattone1, HitBoxMattone1, 7, HitBoxGiocatore);
-            #endregion
-
-            #region pbxMattone2
-
-            // Gestione Mattone 2
             GestisciMattone(mattone2, ref pbxMattone2, HitBoxMattone2, 3, HitBoxGiocatore);
-
-            #endregion
-
-            #region pbxMattone3
-            // Gestione Mattone 3
             GestisciMattone(mattone3, ref pbxMattone3, HitBoxMattone3, 5, HitBoxGiocatore);
-            #endregion
+            GestisciMattone(mattone4, ref pbxMattone4, HitBoxMattone4, 14, HitBoxGiocatore);
+            GestisciMattone(mattone5, ref pbxMattone5, HitBoxMattone5, 15, HitBoxGiocatore);
+            GestisciMattone(mattone6, ref pbxMattone6, HitBoxMattone6, 16, HitBoxGiocatore);
+            GestisciMattone(mattone7, ref pbxMattone7, HitBoxMattone7, 17, HitBoxGiocatore);
+            GestisciMattone(mattone8, ref pbxMattone8, HitBoxMattone8, 18, HitBoxGiocatore);
+            GestisciMattone(mattone9, ref pbxMattone9, HitBoxMattone9, 19, HitBoxGiocatore);
+            GestisciMattone(mattone10, ref pbxMattone10, HitBoxMattone10, 20, HitBoxGiocatore);
+            GestisciMattone(mattone11, ref pbxMattone11, HitBoxMattone11, 21, HitBoxGiocatore);
+            GestisciMattone(mattone12, ref pbxMattone12, HitBoxMattone12, 22, HitBoxGiocatore);
+            GestisciMattone(mattone13, ref pbxMattone13, HitBoxMattone13, 23, HitBoxGiocatore);
+            GestisciMattone(mattone14, ref pbxMattone14, HitBoxMattone14, 24, HitBoxGiocatore);
+            GestisciMattone(mattone15, ref pbxMattone15, HitBoxMattone15, 25, HitBoxGiocatore);
+            GestisciMattone(mattone16, ref pbxMattone16, HitBoxMattone16, 26, HitBoxGiocatore);
+            GestisciMattone(mattone17, ref pbxMattone17, HitBoxMattone17, 27, HitBoxGiocatore);
+            GestisciMattone(mattone18, ref pbxMattone18, HitBoxMattone18, 28, HitBoxGiocatore);
+            GestisciMattone(mattone19, ref pbxMattone19, HitBoxMattone19, 29, HitBoxGiocatore);
+            GestisciMattone(mattone20, ref pbxMattone20, HitBoxMattone20, 30, HitBoxGiocatore);
+            GestisciMattone(mattone21, ref pbxMattone21, HitBoxMattone21, 31, HitBoxGiocatore);
+            GestisciMattone(mattone22, ref pbxMattone22, HitBoxMattone22, 32, HitBoxGiocatore);
+            GestisciMattone(mattone23, ref pbxMattone23, HitBoxMattone23, 33, HitBoxGiocatore);
+            GestisciMattone(mattone24, ref pbxMattone24, HitBoxMattone24, 34, HitBoxGiocatore);
+            GestisciMattone(mattone25, ref pbxMattone25, HitBoxMattone25, 35, HitBoxGiocatore);
+            GestisciMattone(mattone26, ref pbxMattone26, HitBoxMattone26, 36, HitBoxGiocatore);
+            GestisciMattone(mattone27, ref pbxMattone27, HitBoxMattone27, 37, HitBoxGiocatore);
+            GestisciMattone(mattone28, ref pbxMattone28, HitBoxMattone28, 38, HitBoxGiocatore);
+            GestisciMattone(mattone29, ref pbxMattone29, HitBoxMattone29, 39, HitBoxGiocatore);
+            GestisciMattone(mattone30, ref pbxMattone30, HitBoxMattone30, 40, HitBoxGiocatore);
 
             #endregion
-
-
         }
 
         /// <summary>
@@ -509,5 +587,4 @@ namespace SuperMario
             }
         }
     }
-        #endregion
 }

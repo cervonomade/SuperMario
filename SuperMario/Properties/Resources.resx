@@ -178,7 +178,7 @@
     <value>..\Resources\SuperMario_BrickSmash.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="SuperMario_Background" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SuperMario_BackgroundDEF.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Resources\SuperMario_Background[no-blocks].png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
     <comment>Sfondo DEF</comment>
   </data>
   <data name="SuperMario_Pipe" type="System.Resources.ResXFileRef, System.Windows.Forms">
@@ -190,5 +190,8 @@
   <data name="SuperMario_Font" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Super Mario Bros. NES.ttf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     <comment>Font Super Mario</comment>
+  </data>
+  <data name="super mario whole lvl (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\super mario whole lvl (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>
