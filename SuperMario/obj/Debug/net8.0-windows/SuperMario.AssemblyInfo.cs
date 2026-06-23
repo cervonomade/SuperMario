@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SuperMario")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+929b75030f275f82117a0073c63a5dba4de1a6a4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9846e00a511798e20852693503194177d03da88c")]
 [assembly: System.Reflection.AssemblyProductAttribute("SuperMario")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SuperMario")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

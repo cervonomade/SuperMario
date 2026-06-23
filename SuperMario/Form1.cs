@@ -81,28 +81,70 @@ namespace SuperMario
         BloccoSpeciale bloccoSpeciale2 = new BloccoSpeciale();
         BloccoSpeciale bloccoSpeciale3 = new BloccoSpeciale();
         BloccoSpeciale bloccoSpeciale4 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale5 = new BloccoSpeciale();
+        // Nuovi blocchi speciali aggiunti nel Designer
+        BloccoSpeciale bloccoSpeciale6 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale7 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale8 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale9 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale10 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale11 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale12 = new BloccoSpeciale();
+        BloccoSpeciale bloccoSpeciale13 = new BloccoSpeciale();
+
         Mattone mattone1 = new Mattone();
         Mattone mattone2 = new Mattone();
         Mattone mattone3 = new Mattone();
+        Mattone mattone4 = new Mattone();
+        Mattone mattone5 = new Mattone();
+        Mattone mattone6 = new Mattone();
+        Mattone mattone7 = new Mattone();
+        Mattone mattone8 = new Mattone();
+        Mattone mattone9 = new Mattone();
+        Mattone mattone10 = new Mattone();
+        Mattone mattone11 = new Mattone();
+        Mattone mattone12 = new Mattone();
+        Mattone mattone13 = new Mattone();
+        // Nuovi mattoni aggiunti nel Designer
+        Mattone mattone14 = new Mattone();
+        Mattone mattone15 = new Mattone();
+        Mattone mattone16 = new Mattone();
+        Mattone mattone17 = new Mattone();
+        Mattone mattone18 = new Mattone();
+        Mattone mattone19 = new Mattone();
+        Mattone mattone20 = new Mattone();
+        Mattone mattone21 = new Mattone();
+        Mattone mattone22 = new Mattone();
+        Mattone mattone23 = new Mattone();
+        Mattone mattone24 = new Mattone();
+        Mattone mattone25 = new Mattone();
+        Mattone mattone26 = new Mattone();
+        Mattone mattone27 = new Mattone();
+        Mattone mattone28 = new Mattone();
+        Mattone mattone29 = new Mattone();
+        Mattone mattone30 = new Mattone();
+
         Tubo tubo1 = new Tubo();
         Tubo tubo2 = new Tubo();
         Tubo tubo3 = new Tubo();
         Tubo tubo4 = new Tubo();
+        // Nuovi tubi dal Designer
+        Tubo tubo5 = new Tubo();
+        Tubo tubo6 = new Tubo();
 
         IWavePlayer themePlayer;   //Player !!Diverso da SoundPlayer per permettere la riproduzione in loop e piu suoni!!
 
         #endregion
 
-        int tempoRimanente = 300; // Tempo iniziale in secondi
-
-        private PrivateFontCollection marioFontCollection = new PrivateFontCollection();
-        private Font marioFont;
+        int tempoRimanente = 300; // Tempo iniziale in secondi        
 
         public frmGioco()
         {
+            CaricaFontDaRisorse();
+
             InitializeComponent();
 
-            CaricaFontDaRisorse();
+            ApplicaFont();
 
             pbxSfondo.Location = new Point(0, 0);
 
@@ -112,7 +154,7 @@ namespace SuperMario
             themePlayer.Play(); //METTERE A COMMENTO PER EVITARE SUONI DI SOTTOFONDO
 
             PortaBlocchiDavanti();
-        }        
+        }
 
         #region tmp
         // Porta in primo piano tutti i blocchi/mattoni per assicurare l'ordine visivo desiderato
@@ -122,15 +164,56 @@ namespace SuperMario
             pbxBloccoSpeciale2?.BringToFront();
             pbxBloccoSpeciale3?.BringToFront();
             pbxBloccoSpeciale4?.BringToFront();
+            pbxBloccoSpeciale5?.BringToFront();
+            pbxBloccoSpeciale6?.BringToFront();
+            pbxBloccoSpeciale7?.BringToFront();
+            pbxBloccoSpeciale8?.BringToFront();
+            pbxBloccoSpeciale9?.BringToFront();
+            pbxBloccoSpeciale10?.BringToFront();
+            pbxBloccoSpeciale11?.BringToFront();
+            pbxBloccoSpeciale12?.BringToFront();
+            pbxBloccoSpeciale13?.BringToFront();
             pbxMattone1?.BringToFront();
             pbxMattone2?.BringToFront();
             pbxMattone3?.BringToFront();
+            pbxMattone4?.BringToFront();
+            pbxMattone5?.BringToFront();
+            pbxMattone6?.BringToFront();
+            pbxMattone7?.BringToFront();
+            pbxMattone8?.BringToFront();
+            pbxMattone9?.BringToFront();
+            pbxMattone10?.BringToFront();
+            pbxMattone11?.BringToFront();
+            pbxMattone12?.BringToFront();
+            pbxMattone13?.BringToFront();
+            pbxMattone14?.BringToFront();
+            pbxMattone15?.BringToFront();
+            pbxMattone16?.BringToFront();
+            pbxMattone17?.BringToFront();
+            pbxMattone18?.BringToFront();
+            pbxMattone19?.BringToFront();
+            pbxMattone20?.BringToFront();
+            pbxMattone21?.BringToFront();
+            pbxMattone22?.BringToFront();
+            pbxMattone23?.BringToFront();
+            pbxMattone24?.BringToFront();
+            pbxMattone25?.BringToFront();
+            pbxMattone26?.BringToFront();
+            pbxMattone27?.BringToFront();
+            pbxMattone28?.BringToFront();
+            pbxMattone29?.BringToFront();
+            pbxMattone30?.BringToFront();
             pbxPipe1.BringToFront();
             pbxPipe2.BringToFront();
             pbxPipe3.BringToFront();
             pbxPipe4.BringToFront();
+            pbxPipe5?.BringToFront();
+            pbxPipe6?.BringToFront();
 
             pbxPavimento1.BringToFront(); //SEMPRE PER ULTIMA
+            pbxPavimento2?.BringToFront();
+            pbxPavimento3?.BringToFront();
+            pbxPavimento4?.BringToFront();
         }
 
         // Restituisce una hitbox sicura per un PictureBox o Rectangle.Empty se il controllo non è utilizzabile
@@ -262,16 +345,54 @@ namespace SuperMario
             Rectangle HitBoxSpeciale2 = CalcolaHitBox(pbxBloccoSpeciale2);
             Rectangle HitBoxSpeciale3 = CalcolaHitBox(pbxBloccoSpeciale3);
             Rectangle HitBoxSpeciale4 = CalcolaHitBox(pbxBloccoSpeciale4);
+            Rectangle HitBoxSpeciale5 = CalcolaHitBox(pbxBloccoSpeciale5);
+            Rectangle HitBoxSpeciale6 = CalcolaHitBox(pbxBloccoSpeciale6);
+            Rectangle HitBoxSpeciale7 = CalcolaHitBox(pbxBloccoSpeciale7);
+            Rectangle HitBoxSpeciale8 = CalcolaHitBox(pbxBloccoSpeciale8);
+            Rectangle HitBoxSpeciale9 = CalcolaHitBox(pbxBloccoSpeciale9);
+            Rectangle HitBoxSpeciale10 = CalcolaHitBox(pbxBloccoSpeciale10);
+            Rectangle HitBoxSpeciale11 = CalcolaHitBox(pbxBloccoSpeciale11);
+            Rectangle HitBoxSpeciale12 = CalcolaHitBox(pbxBloccoSpeciale12);
+            Rectangle HitBoxSpeciale13 = CalcolaHitBox(pbxBloccoSpeciale13);
 
             Rectangle HitBoxMattone1 = CalcolaHitBox(pbxMattone1);
             Rectangle HitBoxMattone2 = CalcolaHitBox(pbxMattone2);
             Rectangle HitBoxMattone3 = CalcolaHitBox(pbxMattone3);
+            Rectangle HitBoxMattone4 = CalcolaHitBox(pbxMattone4);
+            Rectangle HitBoxMattone5 = CalcolaHitBox(pbxMattone5);
+            Rectangle HitBoxMattone6 = CalcolaHitBox(pbxMattone6);
+            Rectangle HitBoxMattone7 = CalcolaHitBox(pbxMattone7);
+            Rectangle HitBoxMattone8 = CalcolaHitBox(pbxMattone8);
+            Rectangle HitBoxMattone9 = CalcolaHitBox(pbxMattone9);
+            Rectangle HitBoxMattone10 = CalcolaHitBox(pbxMattone10);
+            Rectangle HitBoxMattone11 = CalcolaHitBox(pbxMattone11);
+            Rectangle HitBoxMattone12 = CalcolaHitBox(pbxMattone12);
+            Rectangle HitBoxMattone13 = CalcolaHitBox(pbxMattone13);
+            Rectangle HitBoxMattone14 = CalcolaHitBox(pbxMattone14);
+            Rectangle HitBoxMattone15 = CalcolaHitBox(pbxMattone15);
+            Rectangle HitBoxMattone16 = CalcolaHitBox(pbxMattone16);
+            Rectangle HitBoxMattone17 = CalcolaHitBox(pbxMattone17);
+            Rectangle HitBoxMattone18 = CalcolaHitBox(pbxMattone18);
+            Rectangle HitBoxMattone19 = CalcolaHitBox(pbxMattone19);
+            Rectangle HitBoxMattone20 = CalcolaHitBox(pbxMattone20);
+            Rectangle HitBoxMattone21 = CalcolaHitBox(pbxMattone21);
+            Rectangle HitBoxMattone22 = CalcolaHitBox(pbxMattone22);
+            Rectangle HitBoxMattone23 = CalcolaHitBox(pbxMattone23);
+            Rectangle HitBoxMattone24 = CalcolaHitBox(pbxMattone24);
+            Rectangle HitBoxMattone25 = CalcolaHitBox(pbxMattone25);
+            Rectangle HitBoxMattone26 = CalcolaHitBox(pbxMattone26);
+            Rectangle HitBoxMattone27 = CalcolaHitBox(pbxMattone27);
+            Rectangle HitBoxMattone28 = CalcolaHitBox(pbxMattone28);
+            Rectangle HitBoxMattone29 = CalcolaHitBox(pbxMattone29);
+            Rectangle HitBoxMattone30 = CalcolaHitBox(pbxMattone30);
 
             // Hitbox tubi (usiamo i PictureBox creati dal designer: pbxPipe1..3)
             Rectangle HitBoxTubo1 = CalcolaHitBox(pbxPipe1);
             Rectangle HitBoxTubo2 = CalcolaHitBox(pbxPipe2);
             Rectangle HitBoxTubo3 = CalcolaHitBox(pbxPipe3);
             Rectangle HitBoxTubo4 = CalcolaHitBox(pbxPipe4);
+            Rectangle HitBoxTubo5 = CalcolaHitBox(pbxPipe5);
+            Rectangle HitBoxTubo6 = CalcolaHitBox(pbxPipe6);
 
 
             #endregion
@@ -283,6 +404,8 @@ namespace SuperMario
             GestisciTubo(tubo2, pbxPipe2, HitBoxTubo2, 9, HitBoxGiocatore);
             GestisciTubo(tubo3, pbxPipe3, HitBoxTubo3, 10, HitBoxGiocatore);
             GestisciTubo(tubo4, pbxPipe4, HitBoxTubo4, 11, HitBoxGiocatore);
+            GestisciTubo(tubo5, pbxPipe5, HitBoxTubo5, 12, HitBoxGiocatore);
+            GestisciTubo(tubo6, pbxPipe6, HitBoxTubo6, 13, HitBoxGiocatore);
 
             #endregion
 
@@ -348,7 +471,7 @@ namespace SuperMario
 
 
 
-            #region COLLISIONE
+            #region BLOCCHI SPECIALI
 
             #region pbxBloccoSpeciale1
 
@@ -371,28 +494,56 @@ namespace SuperMario
             #region pbxBloccoSpeciale4
             // Gestione BloccoSpeciale 4
             GestisciBloccoSpeciale(bloccoSpeciale4, pbxBloccoSpeciale4, HitBoxSpeciale4, 4, HitBoxGiocatore);
+            // Gestione BloccoSpeciale 5 (aggiunto)
+            GestisciBloccoSpeciale(bloccoSpeciale5, pbxBloccoSpeciale5, HitBoxSpeciale5, 13, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale6, pbxBloccoSpeciale6, HitBoxSpeciale6, 14, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale7, pbxBloccoSpeciale7, HitBoxSpeciale7, 15, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale8, pbxBloccoSpeciale8, HitBoxSpeciale8, 16, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale9, pbxBloccoSpeciale9, HitBoxSpeciale9, 17, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale10, pbxBloccoSpeciale10, HitBoxSpeciale10, 18, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale11, pbxBloccoSpeciale11, HitBoxSpeciale11, 19, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale12, pbxBloccoSpeciale12, HitBoxSpeciale12, 20, HitBoxGiocatore);
+            GestisciBloccoSpeciale(bloccoSpeciale13, pbxBloccoSpeciale13, HitBoxSpeciale13, 21, HitBoxGiocatore);
             #endregion
 
             #endregion
 
             #region MATTONI
 
-            #region pbxMattone1
             // Gestione Mattone 1
             GestisciMattone(mattone1, ref pbxMattone1, HitBoxMattone1, 7, HitBoxGiocatore);
-            #endregion
-
-            #region pbxMattone2
-
             // Gestione Mattone 2
             GestisciMattone(mattone2, ref pbxMattone2, HitBoxMattone2, 3, HitBoxGiocatore);
-
-            #endregion
-
-            #region pbxMattone3
             // Gestione Mattone 3
             GestisciMattone(mattone3, ref pbxMattone3, HitBoxMattone3, 5, HitBoxGiocatore);
-            #endregion
+
+            GestisciMattone(mattone4, ref pbxMattone4, HitBoxMattone4, 14, HitBoxGiocatore);
+            GestisciMattone(mattone5, ref pbxMattone5, HitBoxMattone5, 15, HitBoxGiocatore);
+            GestisciMattone(mattone6, ref pbxMattone6, HitBoxMattone6, 16, HitBoxGiocatore);
+            GestisciMattone(mattone7, ref pbxMattone7, HitBoxMattone7, 17, HitBoxGiocatore);
+            GestisciMattone(mattone8, ref pbxMattone8, HitBoxMattone8, 18, HitBoxGiocatore);
+            GestisciMattone(mattone9, ref pbxMattone9, HitBoxMattone9, 19, HitBoxGiocatore);
+            GestisciMattone(mattone10, ref pbxMattone10, HitBoxMattone10, 20, HitBoxGiocatore);
+            GestisciMattone(mattone11, ref pbxMattone11, HitBoxMattone11, 21, HitBoxGiocatore);
+            GestisciMattone(mattone12, ref pbxMattone12, HitBoxMattone12, 22, HitBoxGiocatore);
+            GestisciMattone(mattone13, ref pbxMattone13, HitBoxMattone13, 23, HitBoxGiocatore);
+            GestisciMattone(mattone14, ref pbxMattone14, HitBoxMattone14, 24, HitBoxGiocatore);
+            GestisciMattone(mattone15, ref pbxMattone15, HitBoxMattone15, 25, HitBoxGiocatore);
+            GestisciMattone(mattone16, ref pbxMattone16, HitBoxMattone16, 26, HitBoxGiocatore);
+            GestisciMattone(mattone17, ref pbxMattone17, HitBoxMattone17, 27, HitBoxGiocatore);
+            GestisciMattone(mattone18, ref pbxMattone18, HitBoxMattone18, 28, HitBoxGiocatore);
+            GestisciMattone(mattone19, ref pbxMattone19, HitBoxMattone19, 29, HitBoxGiocatore);
+            GestisciMattone(mattone20, ref pbxMattone20, HitBoxMattone20, 30, HitBoxGiocatore);
+            GestisciMattone(mattone21, ref pbxMattone21, HitBoxMattone21, 31, HitBoxGiocatore);
+            GestisciMattone(mattone22, ref pbxMattone22, HitBoxMattone22, 32, HitBoxGiocatore);
+            GestisciMattone(mattone23, ref pbxMattone23, HitBoxMattone23, 33, HitBoxGiocatore);
+            GestisciMattone(mattone24, ref pbxMattone24, HitBoxMattone24, 34, HitBoxGiocatore);
+            GestisciMattone(mattone25, ref pbxMattone25, HitBoxMattone25, 35, HitBoxGiocatore);
+            GestisciMattone(mattone26, ref pbxMattone26, HitBoxMattone26, 36, HitBoxGiocatore);
+            GestisciMattone(mattone27, ref pbxMattone27, HitBoxMattone27, 37, HitBoxGiocatore);
+            GestisciMattone(mattone28, ref pbxMattone28, HitBoxMattone28, 38, HitBoxGiocatore);
+            GestisciMattone(mattone29, ref pbxMattone29, HitBoxMattone29, 39, HitBoxGiocatore);
+            GestisciMattone(mattone30, ref pbxMattone30, HitBoxMattone30, 40, HitBoxGiocatore);
 
             #endregion
 
@@ -507,6 +658,12 @@ namespace SuperMario
                 MessageBox.Show("Tempo scaduto! Hai perso!");
                 this.Close(); // Chiude il form di gioco)
             }
+        }
+
+        private void pbxSfondo_Click(object sender, EventArgs e)
+        {
+
+
         }
     }
         #endregion

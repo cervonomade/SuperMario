@@ -63,6 +63,16 @@ namespace SuperMario.Properties {
         /// <summary>
         ///   Cerca una risorsa localizzata di tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap super_mario_whole_lvl__1_ {
+            get {
+                object obj = ResourceManager.GetObject("super mario whole lvl (1)", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap SuperMario_Background {
             get {
                 object obj = ResourceManager.GetObject("SuperMario_Background", resourceCulture);
