@@ -586,5 +586,11 @@ namespace SuperMario
                 this.Close(); // Chiude il form di gioco)
             }
         }
+
+        private void pbxSfondo_Click(object sender, EventArgs e)
+        {
+
+
+        }
     }
 }
